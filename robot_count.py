@@ -20,7 +20,7 @@ file.write(str(localtime()[2]) + "/" + str(localtime()[1]) +
 
 url = "http://www.ituro.org/tr/"
 html = urllib.request.urlopen(url).read().decode("utf-8")
-soup = BeautifulSoup(html)
+soup = BeautifulSoup(html, "lxml")
 
 category_list = soup.findAll("th", attrs={'class': "col-md-1 text-center"})
 categories = []
