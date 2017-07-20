@@ -1,43 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from time import localtime
-from bs4 import BeautifulSoup
 import urllib.request
+import os.path
+from time import strftime, localtime
+from bs4 import BeautifulSoup
 
 
-filename = str(localtime()[2]) + "-" + str(localtime()[1]) + \
-           "-" + str(localtime()[0]) + "_" + str(localtime()[3]) + \
-           ":" + str(localtime()[4]) + ".txt"
+filename = strftime("%Y-%m-%d %H:%M:%S", localtime())
+folder = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                      "Robot Counts/")
 
-folder = "/home/alper/Documents/Robot Count System/Robot Counts/"
-
-file = open(folder + filename, "w")
-
-file.write(str(localtime()[2]) + "/" + str(localtime()[1]) +
-           "/" + str(localtime()[0]) + "  Time: " + str(localtime()[3]) +
-           ":" + str(localtime()[4]) + "\n\nRobot Count List:\n\n")
+record = open(folder + filename, "w")
+record.write(filename + "\n\nRobot Counts:\n\n")
 
 url = "http://www.ituro.org/tr/"
 html = urllib.request.urlopen(url).read().decode("utf-8")
 soup = BeautifulSoup(html, "lxml")
 
 category_list = soup.findAll("th", attrs={'class': "col-md-1 text-center"})
-categories = []
+categories = [category.text for category in category_list]
 
 robot_list = soup.findAll("td")
-robots = []
-
-for category in category_list:
-    categories.append(category.text)
-
-for robot in robot_list:
-    robots.append(int(robot.text))
+robots = [int(robot.text) for robot in robot_list]
 
 robot_counts = dict(zip(categories, robots))
 
-for robot_count in robot_counts:
-    file.write(robot_count + ": " + str(robot_counts[robot_count]) + "\n")
-file.write("\n\nToplam : " + str(sum(robots)))
+for robot in robot_counts:
+    record.write(robot + ": " + str(robot_counts[robot]) + "\n")
 
-file.close()
+record.write("\n\nTotal: " + str(sum(robots)))
+record.close()
